@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home Test - Test API</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/vue.resource/1.3.1/vue-resource.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+<div id="starting">
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Exercises - Halocom</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+
+            </ul>
+            <ul class="nav navbar-nav navbar-right" v-if="token">
+                <li><a>Hello {{currentUser.userName}}</a></li>
+                <li v-on:click="logout()"><a>Log out</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right" v-if="!token">
+                <li>
+                    <a data-toggle="modal" data-target="#registerModal">
+                        <span class="glyphicon glyphicon-user"></span> Sign Up
+                    </a>
+
+                    <div id="registerModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Register</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form v-on:submit.prevent="register()">
+                                        <div class="form-group">
+                                            <label for="userName">UserName</label>
+                                            <input type="text" class="form-control" v-model="newUser.userName"
+                                                   placeholder="username..."
+
+                                                   required="required">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email " class="form-control" v-model="newUser.email"
+                                                   placeholder="email..."
+
+                                                   required="required">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" class="form-control" v-model="newUser.password"
+                                                   placeholder="password..."
+
+                                                   required="required">
+                                        </div>
+                                        <button type="submit" class="btn btn-default">Register</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a data-toggle="modal" data-target="#loginModal"><span
+                            class="glyphicon glyphicon-log-in"></span>Login
+                    </a>
+
+                    <!-- Modal -->
+                    <div id="loginModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Log In</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form v-on:submit.prevent="getLogin()">
+                                        <div class="form-group">
+                                            <label for="username">UserName</label>
+                                            <input type="text" class="form-control" v-model="userLogin.username"
+                                                   placeholder="username..."
+                                                   id="username"
+                                                   required="required">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" class="form-control" v-model="userLogin.password"
+                                                   placeholder="password..."
+                                                   id="password"
+                                                   required="required">
+                                        </div>
+                                        <button type="submit" class="btn btn-default">Log In</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <div class="row">
+            <h1>List of Question
+                <button class="btn btn-success" data-toggle="modal" data-target="#addquestion">ADD QUESTION</button>
+                <div class="modal fade" id="addquestion" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Add Question</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form v-on:submit.prevent="addQuestion()">
+                                    <div class="form-group">
+                                        <label for="questionName">Question Name</label>
+                                        <input type="text" class="form-control" v-model="newQuestion.questionName"
+                                               placeholder="i.e What your name?"
+                                               required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tag">Tag</label>
+                                        <input type="text" class="form-control" v-model="newQuestion.tag"
+                                               placeholder="i.e php,java,python,..."
+                                               required="required">
+                                    </div>
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <button class="btn btn-info" data-toggle="modal" data-target="#searchQuestion">SEARCH QUESTION</button>
+                <div class="modal fade" id="searchQuestion" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Add Question</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form v-on:submit.prevent="searchQuestion()">
+                                    <div class="form-group">
+                                        <label for="tagSearch">Question Tag</label>
+                                        <input type="text" class="form-control" v-model="tagSearch"
+                                               placeholder="input question tag"
+                                               required="required">
+                                    </div>
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </form>
+
+                                <div class="container" v-if="searchQuestions">
+                                    <p>This is your result</p>
+                                    <ul v-for="i in searchQuestions">
+                                        <li><a v-on:click="getQuestion(i.questionId)">{{i.questionName}}</a></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </h1>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">QuestionName</th>
+                    <th scope="col">Tag</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Option</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="question in questions">
+                    <th scope="row">{{question.questionName}}</th>
+                    <td>{{question.tag}}</td>
+                    <td>
+                        <button class="btn btn-info" v-on:click="getQuestion(question.questionId)">Detail</button>
+                        <!-- div detail question -->
+                        <div class="modal fade" id="detailQuestionModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle"><h2><b>{{currentQuestion.questionName}}</b>
+                                        </h2></h5>
+                                        <button type="button" class="btn btn-default btn-sm" v-if="currentUser.userId!==currentVote.user || !currentVote.upVote===true" v-on:click="vote(currentQuestion.questionId,'true','false')">
+                                            {{currentQuestion.upVote}} <span class="glyphicon glyphicon-thumbs-up"></span> Like
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-sm" v-if="currentUser.userId===currentVote.user && token && currentVote.upVote===true" v-on:click="vote(currentQuestion.questionId,'false','false')">
+                                            {{currentQuestion.upVote}} <span class="glyphicon glyphicon-thumbs-up"></span> Like
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-sm" v-if="currentUser.userId!==currentVote.user || !currentVote.downVote===true" v-on:click="vote(currentQuestion.questionId,'false','true')">
+                                            {{currentQuestion.downVote}} <span class="glyphicon glyphicon-thumbs-down"></span> DisLike
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-sm" v-if="currentUser.userId===currentVote.user && currentVote.downVote===true" v-on:click="vote(currentQuestion.questionId,'false','false')">
+                                            {{currentQuestion.downVote}} <span class="glyphicon glyphicon-thumbs-down"></span> DisLike
+                                        </button>
+
+                                    </div>
+                                    <div class="container">
+                                        <h3>List Answer:</h3>
+                                        <ul>
+                                            <li v-for="answer in answers"> {{answer.user}} ---- {{answer.answer}}</li>
+                                        </ul>
+                                    </div>
+                                    <form v-on:submit.prevent="addAnswer(currentQuestion.questionId)"
+                                          v-if="currentQuestion.active===true">
+                                        <div class="modal-body">
+
+
+                                            <div class="form-group">
+
+                                                <label for="answer">Answer the question</label>
+                                                <textarea
+                                                        class="form-control"
+                                                        placeholder="Enter AnAnswer"
+                                                        v-model="newAnswer.answer"
+                                                        required="required"
+                                                        id="answer"
+                                                        rows="3"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Answer</button>
+                                            <button type="button" class="btn btn-secondary m-progress"
+                                                    data-dismiss="modal">Close
+                                            </button>
+
+                                        </div>
+                                    </form>
+                                    <div v-if="currentQuestion.active===false" class="container">
+                                        <h3><b>This question has been closed</b></h3>
+                                        <button type="button" class="btn btn-secondary m-progress"
+                                                data-dismiss="modal">Close
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="loading" v-if="loading===true">Loading&#8230;</div>
+                        </div>
+                        <!-- end div detail question -->
+
+                    </td>
+                    <td>
+                        <p v-if="question.active===true"><button class="btn btn-success">Open</button><a v-on:click="updateStatus(question.questionId,'false')">Change status</a></p>
+                        <p v-if="!question.active===true"><button class="btn btn-danger">Close</button><a v-on:click="updateStatus(question.questionId,'true')">Change status</a></p>
+                    </td>
+
+                    <td><button class="btn btn-danger" v-on:click="deleteQuestion(question.questionId)">Delete</button> </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{ message }}
+    <div class="loading" v-if="loading===true">Loading&#8230;</div>
+
+
+</div>
+
+
+
+
+<script>
+ new Vue({
+   el: '#starting',
+   data: {
+   questions: [],
+   answers: [],
+   loading: false,
+   currentQuestion: {},
+   message: '',
+   newQuestion: { 'questionName': null, 'tag': null, "user": 0 },
+   newAnswer: {'question':0, 'answer':null, 'user': 0 },
+   token:'',
+   userLogin: {'username': null,'password': null},
+   currentUser: {},
+   currentVote: {},
+   updateQuestion: {'active': 'false'},
+   userVote: {'upVote': 'false', 'downVote': 'false'},
+   newUser: {'userName':'', 'password': '', 'email':''},
+   tagSearch: '',
+   searchQuestions: [],
+
+ },
+ mounted: function() {
+    this.getQuestions();
+
+},
+ methods: {
+ getCurrentVote: function(question, user){
+ this.$http.get('/api/v1/question/' +question+'/user/' + user + '/vote', {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+              .then((response) => {
+                this.currentVote = response.data;
+
+
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+
+ },
+
+ vote: function(question, upVote, downVote) {
+    this.userVote.upVote = upVote;
+    this.userVote.downVote = downVote;
+      if(!this.token){
+        alert("You must have to login first!");
+    }else {
+    this.$http.post('/api/v1/question/' +question+'/user/' + this.currentUser.userId + '/vote',this.userVote ,{
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+              .then((response) => {
+                this.getQuestions();
+                alert("Your request have been send!");
+                $("#detailQuestionModal").modal('hide');
+
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              }) }
+
+ },
+
+ getLogin: function() {
+  this.$http.post('/api/v1/authenticate',this.userLogin)
+      .then((response) => {
+        this.token = response.data.token;
+        $("#loginModal").modal('hide');
+        alert("Log in successful. Token: "+ this.token);
+        this.getUserInfo(this.userLogin.username);
+        this.userLogin.username='';
+        this.userLogin.password='';
+      })
+      .catch((err) => {
+       alert("Login Fail. Wrong username or password");
+       console.log(err);
+      })
+ },
+ logout: function(){
+ this.token = '';
+ this.currentUser = {};
+
+ },
+ register: function() {
+  this.$http.post('/api/v1/user',this.newUser)
+      .then((response) => {
+        this.loading = false;
+        this.newUser.userName='';
+        this.newUser.password="";
+        this.newUser.email = "",
+        $("#registerModal").modal('hide');
+        alert("Register account successful!!!!")
+
+      })
+      .catch((err) => {
+        this.loading = false;
+        alert("Register account fail! Please choose another username!");
+        console.log(err);
+      })
+ },
+
+ getUserInfo: function(username) {
+   this.$http.get('/api/v1/user/' +username, {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+              .then((response) => {
+                this.currentUser = response.data;
+
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+
+ },
+
+ updateStatus: function(id,status) {
+    if(!this.token){
+        alert("You must have to login first!");
+    }else {
+    this.updateQuestion.active = status;
+   this.$http.put('/api/v1/question/' +id, this.updateQuestion, {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+              .then((response) => {
+                this.getQuestions();
+                alert("Update Status Successful!");
+
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              }) }
+
+ },
+
+ getQuestions: function() {
+  this.loading = true;
+  this.$http.get('/api/v1/question')
+      .then((response) => {
+        this.questions = response.data;
+        this.loading = false;
+      })
+      .catch((err) => {
+       this.loading = false;
+       this.message= err;
+       console.log(err);
+      })
+ },
+ getAnswers: function(id) {
+  this.loading = true;
+  this.$http.get('/api/v1/question/' + id + '/answer')
+      .then((response) => {
+        this.answers = response.data;
+        this.loading = false;
+      })
+      .catch((err) => {
+       this.loading = false;
+       this.message= err;
+       console.log(err);
+      })
+ },
+ addAnswer: function(id) {
+ if(!this.token){
+        alert("You must have to login first!");
+    }else {
+  this.loading = true;
+  this.newAnswer.question = id;
+   this.newAnswer.user= this.currentUser.userId;
+  this.$http.post('/api/v1/answer',this.newAnswer, {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+      .then((response) => {
+        this.loading = false;
+        this.newAnswer.question=0;
+        this.newAnswer.answer="";
+        $("#detailQuestionModal").modal('hide');
+        alert("Your request has been send")
+        this.getAnswers(id);
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      }) }
+ },
+ addQuestion: function() {
+  this.loading = true;
+   if(!this.token){
+        alert("You must have to login first!");
+    }else {
+  this.newQuestion.user= this.currentUser.userId;
+  this.$http.post('/api/v1/question',this.newQuestion, {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  })
+      .then((response) => {
+        this.loading = false;
+        this.newQuestion.questionName="";
+        this.newQuestion.tag="";
+        $("#addquestion").modal('hide');
+        alert("Your request has been send")
+        this.getQuestions();
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      }) }
+ },
+ getQuestion: function(id) {
+
+          this.loading = true;
+          this.$http.get('/api/v1/question/' +id)
+              .then((response) => {
+                this.currentQuestion = response.data;
+                this.getAnswers(id);
+                console.log(this.currentQuestion);
+                if(this.token!=''){
+                    this.getCurrentVote(id, this.currentUser.userId);
+                }
+                $("#detailQuestionModal").modal('show');
+
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+ searchQuestion: function() {
+
+          this.loading = true;
+          this.$http.get('/api/v1/question/tag/' +this.tagSearch)
+              .then((response) => {
+
+                this.searchQuestions = response.data;
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+  deleteQuestion: function(id) {
+   if(!this.token){
+        alert("You must have to login first!");
+    }else {
+  this.loading = true;
+  this.$http.delete('/api/v1/question/' + id, {
+        headers: {
+                      'Authorization': 'Bearer '+ this.token,
+                      'Accept': 'application/json'
+                    }
+                  } )
+      .then((response) => {
+        this.loading = false;
+        alert("Delete successful!!")
+        this.getQuestions();
+      })
+      .catch((err) => {
+        this.loading = false;
+        alert(err);
+        console.log(err);
+      }) }
+ },
+ },
+
+ });
+
+</script>
+
+
+</body>
+</html>
